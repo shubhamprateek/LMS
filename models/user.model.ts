@@ -5,8 +5,6 @@ import jwt from "jsonwebtoken";
 const emailRegexPattern: RegExp =
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  
-
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -75,6 +73,16 @@ userSchema.pre<IUser>("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
+
+//sign access token
+userSchema.methods.SignAccessToken = function() {
+  return jwt.sign({id: this._id}, process.env.ACCESS_TOKEN || '');
+};
+
+//sign refresh token
+userSchema.methods.SignRefreshToken = function() {
+  return jwt.sign({id: this._id}, process.env.REFRESH_TOKEN || '');
+};
 
 //compare password
 userSchema.methods.comparePassword = async function (
